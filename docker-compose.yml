@@ -1,0 +1,40 @@
+version: '3.1'
+
+services:
+
+  redmine:
+    image: redmine
+    restart: always
+    ports:
+      - 3000:3000
+    environment:
+      - VIRTUAL_HOST=redmine.niuchuangwin.com
+      - VIRTUAL_NETWORK=nginx-proxy
+      - VIRTUAL_PORT=3000
+      - LETSENCRYPT_HOST=redmine.niuchuangwin.com
+      - LETSENCRYPT_EMAIL=guanbo2002@gmail.com
+      - REDMINE_DB_MYSQL=db
+      - REDMINE_DB_PASSWORD=51wuzi
+    volumes:
+      - ./configuration.yml:/usr/src/redmine/config/configuration.yml
+      - /data/redminefiles:/usr/src/redmine/files
+    networks:
+      - proxy-tier
+
+  db:
+    image: mysql:5.7
+    restart: always
+    volumes:
+      - ./utf8mb4.cnf:/etc/mysql/conf.d/utf8mb4.cnf
+      - /data/redmine:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: 51wuzi
+      MYSQL_DATABASE: redmine
+    networks:
+      - proxy-tier
+
+networks:
+  proxy-tier:
+    external:
+      name: nginx-proxy  
+
